@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="hi"> <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>जेनी - एआई चैटबॉट (एप्पल थीम)</title> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS (Equivalent to style.css) */
+        :root {
+            --apple-blue-light: #007aff;
+            --apple-blue-dark: #0a84ff;
+            --light-bg: #f0f0f5;
+            --dark-bg: #000000;
+
+            --light-container-bg: rgba(255, 255, 255, 0.7);
+            --dark-container-bg: rgba(28, 28, 30, 0.75);
+
+            --light-chat-window-bg: transparent;
+            --dark-chat-window-bg: transparent;
+
+            --light-bot-message-bg: #e5e5ea;
+            --dark-bot-message-bg: #2c2c2e;
+            --light-bot-message-text: #825757;
+            --dark-bot-message-text: #ffffff;
+
+            --light-user-message-bg: var(--apple-blue-light);
+            --dark-user-message-bg: var(--apple-blue-dark);
+            --light-user-message-text: #ffffff;
+            --dark-user-message-text: #ffffff;
+
+            --light-input-area-bg: rgba(245, 245, 245, 0.65);
+            --dark-input-area-bg: rgba(44, 44, 46, 0.7);
+            --light-input-area-border: rgba(0,0,0,0.1);
+            --dark-input-area-border: rgba(255,255,255,0.15);
+
+            --light-input-field-bg: #ffffff;
+            --dark-input-field-bg: #3a3a3c;
+            --light-input-field-text: #000000;
+            --dark-input-field-text: #e5e5e5;
+            --light-input-field-border: #d1d1d6;
+            --dark-input-field-border: #545458;
+
+            --light-button-bg: #e5e5ea;
+            --dark-button-bg: #2c2c2e;
+            --light-button-icon: var(--apple-blue-light);
+            --dark-button-icon: var(--apple-blue-dark);
+
+            --listening-mic-bg: #ff3b30;
+            --listening-mic-icon: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", 'Google Sans', sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.4s ease;
+        }
+        body.dark-mode {
+            background-color: var(--dark-bg);
+        }
+
+        .chatbot-container {
+            background-color: var(--light-container-bg);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border-radius: 24px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+            max-width: 100%;
+            width: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background-color 0.4s ease, box-shadow 0.3s ease;
+            height: calc(100vh - 40px);
+            max-height: 700px;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+        .chatbot-container.dark-mode {
+            background-color: var(--dark-container-bg);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .chat-window {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--light-chat-window-bg);
+            transition: background-color 0.4s ease;
+            position: relative;
+        }
+        .chat-window.dark-mode {
+            background-color: var(--dark-chat-window-bg);
+        }
+
+        .chat-window::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-window::-webkit-scrollbar-track {
+            background: transparent;
+            margin: 5px 0;
+        }
+        .chat-window::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+        .chat-window.dark-mode::-webkit-scrollbar-thumb {
+            background-color: rgba(255,255,255,0.25);
+        }
+
+        .message {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: flex-end;
+            max-width: 100%;
+        }
+        .message.bot {
+            justify-content: flex-start;
+        }
+        .message.user {
+            justify-content: flex-end;
+        }
+        .message.loading .message-content { /* Style for loading message */
+            font-style: italic;
+            color: #777;
+        }
+         .message.loading.dark-mode .message-content {
+            color: #aaa;
+        }
+
+
+        .message-content {
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 80%;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            font-size: 16px;
+            line-height: 1.45;
+        }
+        .message-content.bot {
+            background-color: var(--light-bot-message-bg);
+            color: var(--light-bot-message-text);
+            border-bottom-left-radius: 6px;
+        }
+        .message-content.user {
+            background-color: var(--light-user-message-bg);
+            color: var(--light-user-message-text);
+            border-bottom-right-radius: 6px;
+        }
+        .message-content.bot.dark-mode {
+            background-color: var(--dark-bot-message-bg);
+            color: var(--dark-bot-message-text);
+        }
+        .message-content.user.dark-mode {
+            background-color: var(--dark-user-message-bg);
+            color: var(--dark-user-message-text);
+        }
+
+        .input-area {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--light-input-area-border);
+            transition: background-color 0.4s ease, border-color 0.4s ease;
+            background-color: var(--light-input-area-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            min-height: 60px;
+        }
+        .input-area.dark-mode {
+            background-color: var(--dark-input-area-bg);
+            border-color: var(--dark-input-area-border);
+        }
+
+        .input-area input[type="text"] {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1px solid var(--light-input-field-border);
+            border-radius: 10px;
+            margin-right: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            background-color: var(--light-input-field-bg);
+            color: var(--light-input-field-text);
+            box-shadow: none;
+        }
+        .input-area input[type="text"].dark-mode {
+            background-color: var(--dark-input-field-bg);
+            color: var(--dark-input-field-text);
+            border-color: var(--dark-input-field-border);
+        }
+        .input-area input[type="text"]::placeholder {
+            color: #999;
+        }
+        .input-area input[type="text"].dark-mode::placeholder {
+            color: #777;
+        }
+        .input-area input[type="text"]:focus {
+            outline: none;
+            border-color: var(--apple-blue-light);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+        .input-area input[type="text"].dark-mode:focus {
+            border-color: var(--apple-blue-dark);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25);
+        }
+
+        .input-area button {
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            transition: background-color 0.2s ease, transform 0.15s ease;
+            margin-left: 8px;
+        }
+        .input-area button:hover {
+            transform: scale(1.08);
+        }
+        .input-area button:active {
+            transform: scale(0.95);
+            transition-duration: 0.05s;
+        }
+
+        #send-button {
+            background-color: var(--apple-blue-light);
+        }
+        #send-button.dark-mode {
+            background-color: var(--apple-blue-dark);
+        }
+        #send-button:hover {
+            background-color: #0056b3;
+        }
+        #send-button.dark-mode:hover {
+            background-color: #0060cc;
+        }
+        #send-button svg {
+            fill: white;
+            width: 20px;
+            height: 20px;
+        }
+
+        #microphone-button {
+            background-color: var(--light-button-bg);
+        }
+        #microphone-button.dark-mode {
+            background-color: var(--dark-button-bg);
+        }
+        #microphone-button svg path:first-of-type { /* Target the main mic path for fill */
+            fill: var(--light-button-icon);
+        }
+        #microphone-button.dark-mode svg path:first-of-type {
+            fill: var(--dark-button-icon);
+        }
+        #microphone-button:hover {
+            background-color: #dcdce0;
+        }
+        #microphone-button.dark-mode:hover {
+            background-color: #3a3a3c;
+        }
+        #microphone-button.listening {
+            background-color: var(--listening-mic-bg);
+        }
+        #microphone-button.listening svg path:first-of-type {
+            fill: var(--listening-mic-icon);
+        }
+        #microphone-button.listening.dark-mode {
+             background-color: var(--listening-mic-bg);
+        }
+        #microphone-button.listening.dark-mode svg path:first-of-type {
+            fill: var(--listening-mic-icon);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        @keyframes slideIn {
+           from { transform: translateY(10px); opacity: 0; }
+           to { transform: translateY(0); opacity: 1; }
+        }
+        .slide-in {
+            animation: slideIn 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+
+    </style>
+</head>
+<body>
+  <div class="chatbot-container" id="chatContainer">
+    <div class="chat-window" id="chatBox">
+      <div class="message bot fade-in">
+        <div class="message-content bot slide-in">नमस्ते! मैं जेनी हूँ, आपकी एआई सहायक। मैं आपकी किस प्रकार सहायता कर सकता हूँ?</div>
+      </div>
+    </div>
+    <div class="input-area" id="inputArea">
+      <input type="text" id="user-input" placeholder="मुझसे पूछें..." /> <button id="send-button" onclick="sendMessage()" aria-label="संदेश भेजें"> <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+      <button id="microphone-button" onclick="startListening()" aria-label="बोलकर टाइप करें"> <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/>
+            <path d="M0 0h24v24H0z" fill="none"/> </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const userInput = document.getElementById("user-input");
+    const chatContainer = document.getElementById("chatContainer");
+    const inputArea = document.getElementById("inputArea");
+    const microphoneButton = document.getElementById("microphone-button");
+    const sendButton = document.getElementById('send-button');
+
+    let isListening = false;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+
+    // Speech Synthesis
+    const synth = window.speechSynthesis;
+    let availableVoices = []; // Combined for simplicity, will filter by lang
+    let selectedVoice = null;
+    let preferredLang = 'hi-IN'; // Default to Hindi, can be changed
+
+    // Conversation History for Gemini
+    let chatHistory = [];
+
+    function populateVoiceList() {
+        if (typeof speechSynthesis === 'undefined') {
+            console.warn("Speech Synthesis API not supported in this browser.");
+            return;
+        }
+        availableVoices = speechSynthesis.getVoices();
+        
+        let langVoices = availableVoices.filter(voice => voice.lang === preferredLang);
+        console.log(`Available voices for ${preferredLang}:`, langVoices.map(v => ({name: v.name, lang: v.lang, default: v.default, localService: v.localService })) );
+        
+        let femaleVoiceFound = false;
+        let voiceSearchTerms = preferredLang === 'hi-IN' ? ['female', 'महिला'] : ['female'];
+
+        console.log(`Attempting to find a ${preferredLang} female voice (name containing '${voiceSearchTerms.join("' or '")}')...`);
+        selectedVoice = langVoices.find(voice => voiceSearchTerms.some(term => voice.name.toLowerCase().includes(term)));
+        
+        if (selectedVoice) {
+            femaleVoiceFound = true;
+            console.log(`SUCCESS: Specific ${preferredLang} female voice found and selected:`, selectedVoice.name);
+        } else {
+            console.warn(`INFO: No specific ${preferredLang} female voice found with '${voiceSearchTerms.join('/')}' in the name.`);
+            if (langVoices.length > 0) {
+                console.log(`Attempting fallback selection for ${preferredLang} voice...`);
+                let googleVoiceName = preferredLang === 'hi-IN' ? 'Google हिन्दी' : (preferredLang === 'en-US' ? 'Google US English' : '');
+                
+                selectedVoice = langVoices.find(voice => voice.name === googleVoiceName && googleVoiceName !== '') || 
+                                langVoices.find(voice => voice.default) || 
+                                langVoices[0]; 
+                console.warn(`INFO: Using fallback ${preferredLang} voice:`, selectedVoice ? selectedVoice.name : `No ${preferredLang} voice available even after fallback.`);
+            } else {
+                console.error(`CRITICAL: No ${preferredLang} voices available on this system at all.`);
+                selectedVoice = null;
+            }
+        }
+        
+        if(selectedVoice) {
+            console.log(`FINAL Selected ${preferredLang} voice for synthesis:`, selectedVoice.name, "(Default:", selectedVoice.default, ", Local:", selectedVoice.localService, ")");
+        } else {
+            console.error(`FINAL: No ${preferredLang} voice could be selected for synthesis.`);
+        }
+        return femaleVoiceFound; // Return status
+    }
+
+    if (typeof speechSynthesis !== 'undefined') {
+        if (speechSynthesis.getVoices().length === 0) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        } else {
+            populateVoiceList(); 
+        }
+    }
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = preferredLang; 
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+    } else {
+        console.warn("Speech Recognition not supported in this browser.");
+        if(microphoneButton) microphoneButton.style.display = 'none';
+    }
+
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const applyDarkMode = (isDarkMode) => {
+        const elementsToToggle = [
+            document.body, chatContainer, chatBox, inputArea, userInput,
+            sendButton, microphoneButton
+        ];
+        elementsToToggle.forEach(el => {
+            if (el) {
+                if (isDarkMode) el.classList.add('dark-mode');
+                else el.classList.remove('dark-mode');
+            }
+        });
+        const messages = chatBox.querySelectorAll('.message-content');
+        messages.forEach(message => {
+            if (isDarkMode) message.classList.add('dark-mode');
+            else message.classList.remove('dark-mode');
+        });
+        if (!isListening && microphoneButton) {
+            setMicrophoneRestingStyle(isDarkMode);
+        }
+    };
+
+    function setMicrophoneRestingStyle(isDark) {
+        if (!microphoneButton) return;
+        microphoneButton.classList.remove('listening');
+        const svgPath = microphoneButton.querySelector('svg path:first-of-type');
+        if (svgPath) {
+             svgPath.style.fill = isDark ? 'var(--dark-button-icon)' : 'var(--light-button-icon)';
+        }
+    }
+    
+    applyDarkMode(darkModeMediaQuery.matches);
+    darkModeMediaQuery.addEventListener('change', (event) => {
+        applyDarkMode(event.matches);
+    });
+
+    function appendMessage(text, type, isError = false, isLoading = false) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", type, "fade-in");
+        if (isLoading) {
+            messageDiv.classList.add("loading"); 
+            messageDiv.setAttribute('id', 'loading-message'); 
+        }
+        
+        const messageContentDiv = document.createElement("div");
+        messageContentDiv.classList.add("message-content", type, "slide-in");
+        if (isError) {
+            messageContentDiv.style.color = 'red'; 
+        }
+        messageContentDiv.textContent = text;
+
+        if (document.body.classList.contains('dark-mode')) {
+            messageDiv.classList.add('dark-mode'); 
+            messageContentDiv.classList.add('dark-mode');
+        }
+        
+        messageDiv.appendChild(messageContentDiv);
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return messageDiv; 
+    }
+
+    async function sendMessage() { 
+        const messageText = userInput.value.trim();
+        if (messageText === "") return;
+
+        appendMessage(messageText, "user");
+        userInput.value = ""; 
+        
+        chatHistory.push({ role: "user", parts: [{ text: messageText }] });
+
+        const loadingMessage = preferredLang === 'hi-IN' ? "जेनी सोच रही है..." : "Jenie is thinking...";
+        const loadingMessageElement = appendMessage(loadingMessage, "bot", false, true);
+
+        try {
+            const botResponseText = await getBotResponseFromGemini(messageText); // Changed function name
+            
+            if (loadingMessageElement) {
+                loadingMessageElement.remove();
+            }
+
+            appendMessage(botResponseText, "bot");
+            speak(botResponseText);
+            chatHistory.push({ role: "model", parts: [{ text: botResponseText }] });
+
+        } catch (error) {
+            console.error("Error getting bot response:", error);
+            if (loadingMessageElement) {
+                loadingMessageElement.remove();
+            }
+            const errorMessage = preferredLang === 'hi-IN' ? "क्षमा करें, मुझे एक त्रुटि का सामना करना पड़ा। कृपया पुनः प्रयास करें।" : "Sorry, I encountered an error. Please try again.";
+            appendMessage(errorMessage, "bot", true);
+        }
+    }
+
+    async function getBotResponseFromGemini(prompt) { // Renamed and kept async
+        const payload = {
+            contents: chatHistory, 
+        };
+
+        const apiKey = "AIzaSyBHmHFB1-9pgTOgYWQVox29_j3GFvChOe0";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Gemini API Error:", errorData);
+                throw new Error(`API request failed with status ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
+            }
+
+            const result = await response.json();
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                return text.trim();
+            } else {
+                console.error("Unexpected API response structure:", result);
+                if (result.promptFeedback && result.promptFeedback.blockReason) {
+                     console.warn("Prompt blocked by API:", result.promptFeedback.blockReason);
+                     return preferredLang === 'hi-IN' ? "क्षमा करें, सुरक्षा दिशानिर्देशों के कारण मैं इसका जवाब नहीं दे सकता। कृपया एक अलग प्रॉम्प्ट आज़माएँ।" : "I'm sorry, I can't respond to that due to safety guidelines. Please try a different prompt.";
+                }
+                if (result.candidates && result.candidates[0] && result.candidates[0].finishReason === "SAFETY") {
+                    console.warn("Response filtered due to safety reasons.");
+                    return preferredLang === 'hi-IN' ? "क्षमा करें, सुरक्षा दिशानिर्देशों के कारण मेरी प्रतिक्रिया फ़िल्टर कर दी गई थी। क्या आप कुछ और पूछ सकते हैं?" : "I'm sorry, my response was filtered due to safety guidelines. Could you rephrase or ask something else?";
+                }
+                return preferredLang === 'hi-IN' ? "मुझे एआई से एक असामान्य प्रतिक्रिया मिली। कृपया पुनः प्रयास करें।" : "I received an unusual response from the AI. Please try again.";
+            }
+        } catch (error) {
+            console.error("Error calling Gemini API:", error);
+            return preferredLang === 'hi-IN' ? "क्षमा करें, मुझे अभी अपने दिमाग से जुड़ने में परेशानी हो रही है। कृपया बाद में पुनः प्रयास करें।" : "Sorry, I'm having trouble connecting to my brain right now. Please try again later.";
+        }
+    }
+
+
+    function startListening() {
+        if (!recognition) {
+            const noSupportMsg = preferredLang === 'hi-IN' ? "क्षमा करें, वाक् पहचान आपके ब्राउज़र में समर्थित नहीं है।" : "Sorry, speech recognition is not supported in your browser.";
+            appendMessage(noSupportMsg, "bot", true);
+            return;
+        }
+        recognition.lang = preferredLang; // Ensure recognition lang is current preferredLang
+        if (isListening) {
+            recognition.stop();
+        } else {
+            try {
+                if (synth && synth.state === 'suspended') {
+                    synth.resume().then(() => {
+                        console.log("Speech synthesis context resumed by user gesture before recognition.");
+                        recognition.start();
+                    }).catch(e => {
+                        console.error("Error resuming synth context before recognition:", e);
+                        recognition.start(); 
+                    });
+                } else {
+                     recognition.start();
+                }
+                microphoneButton.classList.add('listening');
+                const svgPath = microphoneButton.querySelector('svg path:first-of-type');
+                if(svgPath) svgPath.style.fill = 'var(--listening-mic-icon)';
+                isListening = true;
+            } catch (error) {
+                console.error("Speech recognition start error:", error);
+                const startErrorMsg = preferredLang === 'hi-IN' ? "वॉइस पहचान शुरू नहीं हो सकी। कृपया माइक्रोफ़ोन अनुमति जांचें।" : "Could not start voice recognition. Please check microphone permissions.";
+                appendMessage(startErrorMsg, "bot", true);
+                setMicrophoneRestingStyle(document.body.classList.contains('dark-mode'));
+                isListening = false;
+            }
+        }
+    }
+
+    if (recognition) {
+        recognition.onresult = (event) => {
+            const result = event.results[0][0].transcript;
+            userInput.value = result;
+            sendMessage(); 
+        };
+        recognition.onend = () => {
+            isListening = false;
+            setMicrophoneRestingStyle(document.body.classList.contains('dark-mode'));
+        };
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            let errorMessage = preferredLang === 'hi-IN' ? "वाक् पहचान के दौरान एक त्रुटि हुई।" : "An error occurred during speech recognition.";
+            if (event.error === 'no-speech') {
+                errorMessage = preferredLang === 'hi-IN' ? "कोई आवाज़ नहीं पहचानी गई। कृपया पुनः प्रयास करें।" : "No speech was detected. Please try again.";
+            } else if (event.error === 'audio-capture') {
+                errorMessage = preferredLang === 'hi-IN' ? "माइक्रोफ़ोन में समस्या। कृपया सुनिश्चित करें कि यह सक्षम है।" : "Microphone problem. Please ensure it's enabled.";
+            } else if (event.error === 'not-allowed') {
+                errorMessage = preferredLang === 'hi-IN' ? "माइक्रोफ़ोन की अनुमति नहीं दी गई। कृपया सेटिंग्स जांचें।" : "Microphone access denied. Please check your browser settings.";
+            }
+            appendMessage(errorMessage, "bot", true); 
+            isListening = false;
+            setMicrophoneRestingStyle(document.body.classList.contains('dark-mode'));
+        };
+    }
+
+    userInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+    function speak(text) {
+        if (!synth || !text) {
+            console.warn("Speech synthesis not available or no text to speak.");
+            return;
+        }
+
+        const doSpeak = () => {
+            if (synth.speaking) {
+                 synth.cancel(); 
+                 console.log('Speech synthesis was busy. Cancelled previous and starting new.');
+            }
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = preferredLang; 
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                console.log("Attempting to speak with voice:", utterance.voice.name, "(Lang:", utterance.voice.lang, "Default:", utterance.voice.default, ")");
+            } else {
+                console.warn(`No ${preferredLang} voice was pre-selected. Browser will use its default for ${preferredLang} if available.`);
+            }
+            
+            utterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event.error, event);
+                let errMessage = preferredLang === 'hi-IN' ? "क्षमा करें, मैं प्रतिक्रिया नहीं बोल सकता ।" : "Sorry, I couldn't speak the response.";
+                if (event.error === 'not-allowed') {
+                    errMessage = preferredLang === 'hi-IN' ? "भाषण संश्लेषण की अनुमति नहीं है।" : "Speech synthesis permission denied.";
+                } else if (event.error === 'synthesis-unavailable' || event.error === 'voice-unavailable') {
+                     errMessage = preferredLang === 'hi-IN' ? "भाषण संश्लेषण सेवा या चयनित आवाज अनुपलब्ध है।" : "Speech synthesis service or selected voice is unavailable.";
+                } else if (event.error === 'synthesis-failed' || event.error === 'audio-busy' || event.error === 'audio-hardware') {
+                    errMessage = preferredLang === 'hi-IN' ? "भाषण संश्लेषण में एक अस्थायी समस्या हुई।" : "A temporary issue occurred with speech synthesis.";
+                }
+                appendMessage(errMessage, "bot", true);
+            };
+            synth.speak(utterance);
+        };
+
+        if (synth.state === 'suspended') {
+            synth.resume().then(() => {
+                console.log("Speech synthesis context resumed successfully for speaking.");
+                doSpeak();
+            }).catch(e => {
+                console.error("Error resuming speech synthesis context for speaking:", e);
+                const resumeErrorMsg = preferredLang === 'hi-IN' ? "भाषण संश्लेषण शुरू करने में असमर्थ। ऑडियो संदर्भ निलंबित है।" : "Unable to start speech synthesis. Audio context is suspended.";
+                appendMessage(resumeErrorMsg, "bot", true);
+            });
+        } else {
+            doSpeak();
+        }
+    }
+    
+    // Function to set language and update UI elements
+    function setLanguage(lang) {
+        preferredLang = lang;
+        document.documentElement.lang = lang; // Set HTML lang attribute
+
+        if (lang === 'hi-IN') {
+            document.title = "✨Jenniee";
+            const initialBotMsgDiv = chatBox.querySelector(".message.bot .message-content");
+            if(initialBotMsgDiv && !chatHistory.some(m => m.role === 'user')) { // Only change if no user interaction yet
+                 initialBotMsgDiv.textContent = "hello😉! मैं Jeniee हूँ, आपकी एआई सहायक। मैं आपकी किस प्रकार सहायता कर सकता हूँ?";
+            }
+            userInput.placeholder = "Mujhse Puchheen...";
+            sendButton.setAttribute('aria-label', 'संदेश भेजें');
+            microphoneButton.setAttribute('aria-label', 'बोलकर टाइप करें');
+        } else { // en-US
+            document.title = "Jenie - AI Chatbot (Apple Theme)";
+             const initialBotMsgDiv = chatBox.querySelector(".message.bot .message-content");
+            if(initialBotMsgDiv && !chatHistory.some(m => m.role === 'user')) {
+                initialBotMsgDiv.textContent = "Hello! I'm Jenie, your AI assistant. How can I help you today?";
+            }
+            userInput.placeholder = "Ask me anything...";
+            sendButton.setAttribute('aria-label', 'Send message');
+            microphoneButton.setAttribute('aria-label', 'Voice input');
+        }
+        
+        if(recognition) { // Update recognition language
+            recognition.lang = preferredLang;
+        }
+        populateVoiceList(); // Re-populate and select voice for new language
+        
+        // Clear chat history when language changes to avoid mixed-language context issues with Gemini
+        // chatHistory = []; 
+        // Add new initial greeting to history if needed
+        // const currentGreeting = chatBox.querySelector(".message.bot .message-content")?.textContent;
+        // if (currentGreeting) {
+        //    chatHistory.push({ role: "model", parts: [{ text: currentGreeting }] });
+        //}
+        console.log(`Language changed to ${preferredLang}. Chat history might need to be managed if you want to clear it.`);
+    }
+
+
+    window.onload = () => {
+        applyDarkMode(darkModeMediaQuery.matches); 
+        
+        // Example: Add a simple language toggle (you can make this more sophisticated)
+        const langToggleButton = document.createElement('button');
+        langToggleButton.textContent = 'Switch to English'; // Initial state
+        langToggleButton.style.position = 'fixed';
+        langToggleButton.style.top = '10px';
+        langToggleButton.style.right = '10px';
+        langToggleButton.style.padding = '8px 12px';
+        langToggleButton.style.cursor = 'pointer';
+        langToggleButton.style.zIndex = '1000';
+        langToggleButton.style.backgroundColor = 'var(--apple-blue-light)';
+        langToggleButton.style.color = 'white';
+        langToggleButton.style.border = 'none';
+        langToggleButton.style.borderRadius = '8px';
+
+        langToggleButton.onclick = () => {
+            if (preferredLang === 'hi-IN') {
+                setLanguage('en-US');
+                langToggleButton.textContent = 'हिंदी में बदलें';
+            } else {
+                setLanguage('hi-IN');
+                langToggleButton.textContent = 'Switch to English';
+            }
+        };
+        document.body.appendChild(langToggleButton);
+        
+        // Initial setup based on preferredLang (default is hi-IN)
+        setLanguage(preferredLang); // This will also call populateVoiceList
+
+        setTimeout(() => { 
+            // populateVoiceList is called by setLanguage.
+            // The notification about voice selection is now handled within populateVoiceList.
+            const currentGreeting = chatBox.querySelector(".message.bot .message-content")?.textContent;
+            if (currentGreeting && !chatHistory.some(m => m.role === 'model' && m.parts[0].text === currentGreeting)) {
+               chatHistory.push({ role: "model", parts: [{ text: currentGreeting }] });
+            }
+        }, 750); // Slightly increased delay
+    };
+  </script>
+</body>
+</html>
+
+
