@@ -9,7 +9,7 @@
         /* CSS (Equivalent to style.css) */
         :root {
             --apple-blue-light: #007aff;
-            --apple-blue-dark: #0a84ff;
+            --apple-blue-dark:rgb(0, 8, 255);
             --light-bg: #f0f0f5;
             --dark-bg: #000000;
 
@@ -678,7 +678,7 @@
             document.title = "✨Jenniee";
             const initialBotMsgDiv = chatBox.querySelector(".message.bot .message-content");
             if(initialBotMsgDiv && !chatHistory.some(m => m.role === 'user')) { // Only change if no user interaction yet
-                 initialBotMsgDiv.textContent = "hello😉! मैं Jeniee हूँ, आपकी एआई सहायक। मैं आपकी किस प्रकार सहायता कर सकता हूँ?";
+                 initialBotMsgDiv.textContent = "hello मैं ✨Jeniee हूँ, आपकी एआई सहायक। मैं आपकी किस प्रकार सहायता कर सकता हूँ?";
             }
             userInput.placeholder = "Mujhse Puchheen...";
             sendButton.setAttribute('aria-label', 'संदेश भेजें');
